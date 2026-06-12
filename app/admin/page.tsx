@@ -3,6 +3,7 @@ import { Activity, Inbox, Megaphone } from "lucide-react"
 
 import { AdminDemandList } from "@/components/AdminDemandList"
 import { AdminEntryForm } from "@/components/AdminEntryForm"
+import { AdminEntryList } from "@/components/AdminEntryList"
 import { AdminLogoutButton } from "@/components/AdminLogoutButton"
 import { AdminStatusControl } from "@/components/AdminStatusControl"
 import { Logo } from "@/components/Logo"
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/card"
 import { getSupabaseEnv } from "@/lib/supabase/env"
 import { createClient } from "@/lib/supabase/server"
-import type { Demand, SystemStatus } from "@/lib/types"
+import type { Demand, Entry, SystemStatus } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
@@ -35,17 +36,22 @@ export default async function AdminPage() {
     redirect("/admin/login")
   }
 
-  const [statusResult, demandsResult] = await Promise.all([
+  const [statusResult, demandsResult, entriesResult] = await Promise.all([
     supabase.from("system_status").select("status, updated_at").eq("id", 1).maybeSingle(),
     supabase
       .from("demands")
       .select("id, name, email, phone, description, file_url, file_name, status, created_at")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("entries")
+      .select("id, type, title, description, created_at")
       .order("created_at", { ascending: false }),
   ])
 
   const status = (statusResult.data?.status ?? "operational") as SystemStatus
   const updatedAt = statusResult.data?.updated_at ?? null
   const demands = (demandsResult.data ?? []) as Demand[]
+  const entries = (entriesResult.data ?? []) as Entry[]
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -97,8 +103,14 @@ export default async function AdminPage() {
               feed público.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <AdminEntryForm />
+            <div>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
+                Entradas publicadas
+              </h3>
+              <AdminEntryList entries={entries} />
+            </div>
           </CardContent>
         </Card>
 

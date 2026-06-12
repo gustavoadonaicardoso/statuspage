@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Loader2, Mail, Paperclip, Phone } from "lucide-react"
 
+import { PublishDemandDialog } from "@/components/PublishDemandDialog"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -145,15 +146,18 @@ export function AdminDemandCard({ demand, onStatusChange }: AdminDemandCardProps
           {demand.description}
         </p>
 
-        <a
-          href={demand.file_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-        >
-          <Paperclip className="h-3.5 w-3.5" />
-          {demand.file_name}
-        </a>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <a
+            href={demand.file_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
+            <Paperclip className="h-3.5 w-3.5" />
+            {demand.file_name}
+          </a>
+          <PublishDemandDialog demand={demand} />
+        </div>
       </CardContent>
     </Card>
   )

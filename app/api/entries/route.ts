@@ -85,3 +85,61 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ entry: data }, { status: 201 })
 }
+
+// DELETE autenticado: exclui uma entrada do feed.
+export async function DELETE(request: Request) {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
+  }
+
+  let body: { id?: string }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Corpo da requisição inválido." }, { status: 400 })
+  }
+
+  const id = body.id
+  if (!id) {
+    return NextResponse.json({ error: "Informe o id da entrada." }, { status: 400 })
+  }
+
+  // .select() retorna as linhas excluídas; com RLS sem política de delete a
+  // operação não exclui nada e não retorna erro, então conferimos o resultado.
+  const { data, error } = await supabase
+    .from("entries")
+    .delete()
+    .eq("id", id)
+    .select("id")
+
+  if (error) {
+    return NextResponse.json(
+      { error: "Não foi possível excluir a entrada." },
+      { status: 500 }
+    )
+  }
+
+  if (!data || data.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Nada foi excluído. Verifique se a política de exclusão (migration 0002) foi aplicada no Supabase.",
+      },
+      { status: 404 }
+    )
+  }
+
+  return NextResponse.json({ ok: true })
+}

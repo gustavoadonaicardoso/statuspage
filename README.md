@@ -26,6 +26,7 @@ No painel do Supabase, abra **SQL Editor** e execute o conteúdo de:
 
 ```
 supabase/migrations/0001_init.sql
+supabase/migrations/0002_entries_delete_policy.sql
 ```
 
 O script cria:
