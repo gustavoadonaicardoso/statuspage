@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getSupabaseEnv } from "@/lib/supabase/env"
 import { createClient } from "@/lib/supabase/server"
 import { ENTRY_TYPE_VALUES, type EntryType } from "@/lib/types"
 
@@ -7,6 +8,13 @@ export const dynamic = "force-dynamic"
 
 // GET público: lista as entradas do feed em ordem decrescente.
 export async function GET() {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("entries")
@@ -25,6 +33,13 @@ export async function GET() {
 
 // POST autenticado: publica uma nova entrada no feed.
 export async function POST(request: Request) {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
 
   const {

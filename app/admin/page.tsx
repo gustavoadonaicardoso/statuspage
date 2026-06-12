@@ -6,6 +6,7 @@ import { AdminEntryForm } from "@/components/AdminEntryForm"
 import { AdminLogoutButton } from "@/components/AdminLogoutButton"
 import { AdminStatusControl } from "@/components/AdminStatusControl"
 import { Logo } from "@/components/Logo"
+import { SetupNotice } from "@/components/SetupNotice"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import {
   Card,
@@ -14,12 +15,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { getSupabaseEnv } from "@/lib/supabase/env"
 import { createClient } from "@/lib/supabase/server"
 import type { Demand, SystemStatus } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminPage() {
+  if (!getSupabaseEnv()) {
+    return <SetupNotice />
+  }
+
   const supabase = await createClient()
 
   const {

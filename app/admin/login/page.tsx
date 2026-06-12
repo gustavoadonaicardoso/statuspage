@@ -29,6 +29,17 @@ export default function AdminLoginPage() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage(null)
+
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ) {
+      setErrorMessage(
+        "Supabase não configurado. Defina as variáveis de ambiente e faça um novo deploy."
+      )
+      return
+    }
+
     setSubmitting(true)
 
     const supabase = createClient()

@@ -1,14 +1,20 @@
 import { DemandForm } from "@/components/DemandForm"
 import { EntryTimeline } from "@/components/EntryTimeline"
 import { Logo } from "@/components/Logo"
+import { SetupNotice } from "@/components/SetupNotice"
 import { StatusBadge } from "@/components/StatusBadge"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { getSupabaseEnv } from "@/lib/supabase/env"
 import { createClient } from "@/lib/supabase/server"
 import type { Entry, SystemStatus } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
+  if (!getSupabaseEnv()) {
+    return <SetupNotice />
+  }
+
   const supabase = await createClient()
 
   const [statusResult, entriesResult] = await Promise.all([

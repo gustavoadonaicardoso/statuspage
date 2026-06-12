@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getSupabaseEnv } from "@/lib/supabase/env"
 import { createClient } from "@/lib/supabase/server"
 import { SYSTEM_STATUS_VALUES, type SystemStatus } from "@/lib/types"
 
@@ -7,6 +8,13 @@ export const dynamic = "force-dynamic"
 
 // GET público: retorna o status global do sistema.
 export async function GET() {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("system_status")
@@ -29,6 +37,13 @@ export async function GET() {
 
 // PATCH autenticado: altera o status global do sistema.
 export async function PATCH(request: Request) {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
 
   const {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getSupabaseEnv } from "@/lib/supabase/env"
 import { createClient } from "@/lib/supabase/server"
 import { DEMAND_STATUS_VALUES, type DemandStatus } from "@/lib/types"
 
@@ -8,6 +9,13 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // POST público: cria uma demanda. O arquivo já foi enviado ao Storage
 // pelo client; aqui validamos e persistimos os metadados.
 export async function POST(request: Request) {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
   let body: Record<string, unknown>
   try {
     body = await request.json()
@@ -70,6 +78,13 @@ export async function POST(request: Request) {
 
 // PATCH autenticado: atualiza o status de uma demanda.
 export async function PATCH(request: Request) {
+  if (!getSupabaseEnv()) {
+    return NextResponse.json(
+      { error: "Supabase não configurado no servidor." },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
 
   const {
